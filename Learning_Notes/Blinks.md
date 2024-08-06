@@ -2,7 +2,7 @@
 
 ## Overview
 
-Blinks, or Blockchain Links, are clients that detect Action URLs and unfurl them into full interactive experiences. They are part of the Actions protocol developed in collaboration with Solana to make Solana transactions sharable everywhere.
+Blinks, or Blockchain Links, are clients that detect Action URLs and unfurl them into full interactive experiences. They are part of the Actions protocol developed to make Solana transactions sharable everywhere.
 
 ## Key Concepts
 
@@ -40,17 +40,13 @@ Blinks should support a combination of multiple actions and at most one user inp
 - Action buttons
 - Optional input field
 
+## Action Execution Lifecycle
+
+![Sequencer diagram](./images/action_overview.png)
+
 ## Security
 
 To ensure safety, Dialect maintains a public registry of verified non-malicious blockchain links. Only Actions registered in this registry will unfurl in supported platforms like Twitter([4](https://docs.dialect.to/documentation/actions/security)).
-
-## Integration for Developers
-
-Developers can integrate Blinks into their clients (e.g., wallets, web3 social dApps) using the Blinks SDK([5](https://docs.dialect.to/documentation/actions/guide-integrate-blinks-into-your-client)):
-
-1. Install the SDK: `npm install @dialectlabs/blinks` or `yarn add @dialectlabs/blinks`
-2. Import necessary components and hooks
-3. Set up the Blink component in your application
 
 ## Additional Resources
 
