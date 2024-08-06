@@ -73,8 +73,3 @@ The SPL-Token program is Solana's native token standard.
 
 - [Solana Documentation](https://docs.solana.com/)
 - [Solana Cookbook](https://solanacookbook.com/)
-
-## Diagrams
-
-### Account Structure
-```
