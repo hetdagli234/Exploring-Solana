@@ -1,6 +1,6 @@
 use anchor_lang::{prelude::*, system_program::{transfer, Transfer}};
 
-declare_id!("96bRMHrgwi46MG21PxNJF7v4xww75hfkmU8QbWNXrqh");
+declare_id!("RMcpdk91XUvPVzWbTYkegWnZXzncYtNoes9uxdnC9uG");
 
 #[program]
 pub mod vault {
@@ -31,14 +31,14 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = user,
-        seeds = [b"state", user.key().as_ref()],
+        seeds = [b"state", user.key().as_ref()], 
         bump,
-        space = VaultState::INIT_SPACE
+        space = VaultState::INIT_SPACE,
     )]
     pub vault_state: Account<'info, VaultState>,
     #[account(
         seeds = [b"vault", vault_state.key().as_ref()],
-        bump
+        bump,
     )]
     pub vault: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
@@ -59,16 +59,17 @@ pub struct Payments<'info> {
     pub user: Signer<'info>,
     #[account(
         mut,
-        seeds = [b"vault", user.key().as_ref()],
+        seeds = [b"vault", vault_state.key().as_ref()], 
+        // Our program will be able sign transactions on behalf of the vault account.
+        bump = vault_state.vault_bump,
+    )]
+    pub vault: SystemAccount<'info>,
+    #[account(
+        seeds = [b"state", user.key().as_ref()],
         bump = vault_state.state_bump,
     )]
     pub vault_state: Account<'info, VaultState>,
-    #[account(
-        seeds = [b"state", vault_state.key().as_ref()],
-        bump = vault_state.vault_bump
-    )]
-    pub vault: SystemAccount<'info>,
-    pub system_program: Program<'info, System>
+    pub system_program: Program<'info, System>,
 }
 
 impl<'info> Payments<'info> {
@@ -109,21 +110,21 @@ impl<'info> Payments<'info> {
 
 #[derive(Accounts)]
 pub struct Close<'info> {
-    #[account()]
+    #[account(mut)]
     pub user: Signer<'info>,
     #[account(
         mut,
-        close = user,
-        seeds = [b"state", user.key().as_ref()],
-        bump = vault_state.state_bump,
-    )]
-    pub vault_state: Account<'info, VaultState>,
-    #[account(
-        mut,
         seeds = [b"vault", vault_state.key().as_ref()],
-        bump = vault_state.vault_bump
+        bump = vault_state.vault_bump,
     )]
     pub vault: SystemAccount<'info>,
+    #[account(
+        mut,
+        seeds = [b"state", user.key().as_ref()],
+        bump = vault_state.state_bump,
+        close = user,
+    )]
+    pub vault_state: Account<'info, VaultState>,
     pub system_program: Program<'info, System>,
 }
 

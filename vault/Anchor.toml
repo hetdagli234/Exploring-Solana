@@ -4,14 +4,14 @@
 resolution = true
 skip-lint = false
 
-[programs.devnet]
-vault = "96bRMHrgwi46MG21PxNJF7v4xww75hfkmU8QbWNXrqh"
+[programs.Localnet]
+vault = "RMcpdk91XUvPVzWbTYkegWnZXzncYtNoes9uxdnC9uG"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "Localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
