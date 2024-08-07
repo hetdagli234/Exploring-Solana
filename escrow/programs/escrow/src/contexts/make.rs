@@ -43,12 +43,12 @@ pub struct Make<'info> {
     )]
     vault: InterfaceAccount<'info, TokenAccount>,
     associated_token_program: Program<'info, AssociatedToken>,
-    token_program: Program<'info, TokenInterface>,
+    token_program: Interface<'info, TokenInterface>,
     system_program: Program<'info, System>,
 }
 
 impl<'info> Make<'info> {
-    pub fn save_escrow(&mut self, seed: u64, reciever: u64, bump: u8) -> Result<()> {
+    pub fn save_escrow(&mut self, seed: u64, receive: u64, bump: u8) -> Result<()> {
         self.escrow.set_inner(Escrow {
             seed,
             maker: self.maker.key(),

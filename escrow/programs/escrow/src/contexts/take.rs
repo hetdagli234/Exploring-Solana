@@ -55,13 +55,16 @@ pub struct Take<'info> {
     )]
     escrow: Account<'info, Escrow>,
     associated_token_program: Program<'info, AssociatedToken>,
-    token_program: Program<'info, TokenInterface>,
+    token_program: Interface<'info, TokenInterface>,
     system_program: Program<'info, System>,
 }
 
 impl<'info> Take<'info> {
     pub fn withdraw_and_close(&mut self) -> Result<()> {
-        let signer_seeds = &[&[b"escrow", self.maker.to_account_info().key.as_ref(), self.escrow.seed.to_le_bytes().as_ref()], &[self.escrow.bump]];
+        let seed = self.escrow.seed.to_le_bytes();
+        let bump = [self.escrow.bump];
+        let signer_seeds = [&[b"escrow", self.maker.to_account_info().key.as_ref(), &seed.as_ref(), &bump][..]]; 
+        
         let accounts = TransferChecked {
             to: self.taker_ata_a.to_account_info(),
             from: self.vault.to_account_info(),
@@ -69,7 +72,7 @@ impl<'info> Take<'info> {
             authority: self.escrow.to_account_info(),
         };
 
-        let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts, signer_seeds);
+        let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts, &signer_seeds);
         transfer_checked(ctx, self.vault.amount, self.mint_a.decimals);
 
         let accounts = CloseAccount {
@@ -78,13 +81,13 @@ impl<'info> Take<'info> {
             authority: self.escrow.to_account_info(),
         };
 
-        let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts, signer_seeds);
+        let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts, &signer_seeds);
 
         close_account(ctx);
         Ok(())
     }
 
-    pub fn transfer_to_maker(&self, amount: u64) -> Result<()> {
+    pub fn transfer_to_maker(&self) -> Result<()> {
         let accounts = TransferChecked {
             from: self.taker_ata_b.to_account_info(),
             to: self.maker_ata_b.to_account_info(),

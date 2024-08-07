@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 
 mod contexts;
 use contexts::*;
+
 mod state;
 use state::*;
 
@@ -11,7 +12,7 @@ pub mod escrow {
     use super::*;
 
     pub fn make(ctx: Context<Make>, seed: u64, amount: u64, receive: u64) -> Result<()> {
-        ctx.accounts.save_escrow(seed, receive, ctx.bump)?;
+        ctx.accounts.save_escrow(seed, receive, ctx.bumps.escrow)?;
         ctx.accounts.deposit_to_vault(amount)
     }
     pub fn take(ctx: Context<Take>) -> Result<()> {
