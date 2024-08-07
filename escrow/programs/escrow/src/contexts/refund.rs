@@ -54,7 +54,7 @@ impl<'info> Refund<'info> {
         };
 
         let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts, &signer_seeds);
-        transfer_checked(ctx, self.vault.amount, self.mint_a.decimals);
+        transfer_checked(ctx, self.vault.amount, self.mint_a.decimals)?;
 
         let accounts = CloseAccount {
             account: self.escrow.to_account_info(),
@@ -64,7 +64,7 @@ impl<'info> Refund<'info> {
 
         let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts, &signer_seeds);
 
-        close_account(ctx);
+        close_account(ctx)?;
         Ok(())
     }
 }
