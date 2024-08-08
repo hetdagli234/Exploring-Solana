@@ -14,11 +14,11 @@ pub struct Take<'info> {
     #[account(
         mint::token_program = token_program
     )]
-    mint_a: InterfaceAccount<'info, Mint>,
+    mint_a: Box<InterfaceAccount<'info, Mint>>,
     #[account(
         mint::token_program = token_program
     )]
-    mint_b: InterfaceAccount<'info, Mint>,
+    mint_b: Box<InterfaceAccount<'info, Mint>>,
     #[account(
         init_if_needed,
         payer = taker,
@@ -26,34 +26,35 @@ pub struct Take<'info> {
         associated_token::authority = taker,
         associated_token::token_program = token_program
     )]
-    taker_ata_a: InterfaceAccount<'info, TokenAccount>,
+    taker_ata_a: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
-        mut,
+        init_if_needed,
+        payer = taker,
         associated_token::mint = mint_b,
         associated_token::authority = taker,
         associated_token::token_program = token_program
     )]
-    taker_ata_b: InterfaceAccount<'info, TokenAccount>,
+    taker_ata_b: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         mut,
         associated_token::mint = mint_b,
         associated_token::authority = maker,
         associated_token::token_program = token_program
     )]
-    maker_ata_b: InterfaceAccount<'info, TokenAccount>,
+    maker_ata_b: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         associated_token::mint = mint_a,
         associated_token::authority = escrow,
         associated_token::token_program = token_program
     )]
-    vault: InterfaceAccount<'info, TokenAccount>,
+    vault: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         mut,
         close = maker,
         seeds = [b"escrow", maker.key().as_ref(), escrow.seed.to_le_bytes().as_ref()],
         bump = escrow.bump
     )]
-    escrow: Account<'info, Escrow>,
+    escrow: Box<Account<'info, Escrow>>,
     associated_token_program: Program<'info, AssociatedToken>,
     token_program: Interface<'info, TokenInterface>,
     system_program: Program<'info, System>,

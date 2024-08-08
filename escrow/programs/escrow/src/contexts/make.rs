@@ -14,18 +14,19 @@ pub struct Make<'info> {
     #[account(
         mint::token_program = token_program
     )]
-    mint_a: InterfaceAccount<'info, Mint>,
+    mint_a: Box<InterfaceAccount<'info, Mint>>,
     #[account(
         mint::token_program = token_program
     )]
-    mint_b: InterfaceAccount<'info, Mint>,
+    mint_b: Box<InterfaceAccount<'info, Mint>>,
     #[account(
-        mut,
+        init_if_needed,
+        payer = maker,
         associated_token::mint = mint_a,
         associated_token::authority = maker,
         associated_token::token_program = token_program
     )]
-    maker_ata_a: InterfaceAccount<'info, TokenAccount>,
+    maker_ata_a: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         init,
         payer = maker,
@@ -33,7 +34,7 @@ pub struct Make<'info> {
         seeds = [b"escrow", maker.key().as_ref(), seed.to_le_bytes().as_ref()],
         bump
     )]
-    escrow: Account<'info, Escrow>,
+    escrow: Box<Account<'info, Escrow>>,
     #[account(
         init_if_needed,
         payer = maker,
@@ -41,7 +42,7 @@ pub struct Make<'info> {
         associated_token::authority = escrow,
         associated_token::token_program = token_program
     )]
-    vault: InterfaceAccount<'info, TokenAccount>,
+    vault: Box<InterfaceAccount<'info, TokenAccount>>,
     associated_token_program: Program<'info, AssociatedToken>,
     token_program: Interface<'info, TokenInterface>,
     system_program: Program<'info, System>,
