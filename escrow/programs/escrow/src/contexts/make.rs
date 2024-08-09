@@ -36,7 +36,7 @@ pub struct Make<'info> {
     )]
     escrow: Box<Account<'info, Escrow>>,
     #[account(
-        init_if_needed,
+        init,
         payer = maker,
         associated_token::mint = mint_a,
         associated_token::authority = escrow,

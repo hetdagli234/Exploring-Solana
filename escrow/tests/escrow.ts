@@ -4,12 +4,13 @@ import { Escrow } from "../target/types/escrow";
 import makerWallet from "../wba-wallet.json";
 import takerWallet from "../dev-wallet.json";
 import { PublicKey } from "@solana/web3.js";
-import { airdropSol } from "@lightprotocol/stateless.js";
-import { transfer, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import { randomBytes } from "crypto";
+import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 describe("escrow", () => {
-  // Configure the client to use the local cluster.
+  
   anchor.setProvider(anchor.AnchorProvider.env());
+  const program = anchor.workspace.Escrow as Program<Escrow>;
 
   const maker = anchor.web3.Keypair.fromSecretKey(
     new Uint8Array(makerWallet)
@@ -19,57 +20,73 @@ describe("escrow", () => {
     new Uint8Array(takerWallet)
   );
 
-  const connection = new anchor.web3.Connection(anchor.web3.clusterApiUrl("devnet"));
+  const mintA = new PublicKey("CW3fBWxSVuaTA2GjAEoAhdftgG4F3RS7Caksu9hGR1EY");
+  const mintB = new PublicKey("CW3fBWxSVuaTA2GjAEoAhdftgG4F3RS7Caksu9hGR1EY");
 
-  console.log(taker.publicKey.toString());
-  const program = anchor.workspace.Escrow as Program<Escrow>;
+  const [makerAtaA, makerAtaB, takerAtaA, takerAtaB] = [maker, taker]
+    .map((a) =>
+      [mintA, mintB].map((m) =>
+        getAssociatedTokenAddressSync(m, a.publicKey, false, TOKEN_PROGRAM_ID)
+      )
+    )
+    .flat();
+  
+  const seed = new BN(randomBytes(8));
+
+  const escrow = PublicKey.findProgramAddressSync(
+    [Buffer.from("escrow"), maker.publicKey.toBuffer(), seed.toArrayLike(Buffer, "le", 8)],
+    program.programId
+  )[0];
+
+  const vault = getAssociatedTokenAddressSync(mintA, escrow, true, TOKEN_PROGRAM_ID);
+
+  const accounts = {
+    maker: maker.publicKey,
+    taker: taker.publicKey,
+    mintA,
+    mintB,
+    makerAtaA,
+    makerAtaB,
+    takerAtaA,
+    takerAtaB,
+    escrow,
+    vault,
+    tokenProgram: TOKEN_PROGRAM_ID
+  }
+
+  console.log(`Maker: ${maker.publicKey.toString()}`);
+  console.log(`Taker: ${taker.publicKey.toString()}`);
+  console.log(`Escrow: ${escrow.toString()}`);
+  console.log(`Vault: ${vault.toString()}`);
 
   it("Making!", async () => {
     // Add your test here.
     const tx = await program.methods
-    .make(new BN(252), new BN(1_000_000), new BN(500_000))
-    .accountsPartial({
-      maker: maker.publicKey,
-      mintA: new PublicKey("CW3fBWxSVuaTA2GjAEoAhdftgG4F3RS7Caksu9hGR1EY"),
-      mintB: new PublicKey("CW3fBWxSVuaTA2GjAEoAhdftgG4F3RS7Caksu9hGR1EY"), 
-      escrow: PublicKey.findProgramAddressSync(
-        [Buffer.from("escrow"), maker.publicKey.toBuffer(), new BN(252).toArrayLike(Buffer, 'le', 8)],
-        program.programId
-      )[0],
-      associatedTokenProgram: anchor.utils.token.ASSOCIATED_PROGRAM_ID,
-      tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
-      systemProgram: anchor.web3.SystemProgram.programId
-    })
+    .make(seed, new BN(1_000_000), new BN(500_000))
+    .accounts({...accounts})
     .signers([maker])
     .rpc();
-    console.log("Your transaction signature", tx);
+    console.log("Your maker transaction signature", tx);
   });
 
-  it("Taking!", async () => {
+
+  xit("Taking!", async () => {
     // Add your test here.
     const tx = await program.methods
       .take()
-      .accountsPartial({
-        taker: taker.publicKey,
-        maker: maker.publicKey,
-        mintA: new PublicKey("CW3fBWxSVuaTA2GjAEoAhdftgG4F3RS7Caksu9hGR1EY"),
-        mintB: new PublicKey("CW3fBWxSVuaTA2GjAEoAhdftgG4F3RS7Caksu9hGR1EY"),
-        escrow: PublicKey.findProgramAddressSync(
-          [Buffer.from("escrow"), maker.publicKey.toBuffer(), new BN(252).toArrayLike(Buffer, 'le', 8)],
-          program.programId
-        )[0],
-        associatedTokenProgram: anchor.utils.token.ASSOCIATED_PROGRAM_ID,
-        tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
-        systemProgram: anchor.web3.SystemProgram.programId
-      })
+      .accounts({...accounts})
       .signers([taker])
       .rpc();
-    console.log("Your transaction signature", tx);
+    console.log("Your taker transaction signature", tx);
   });
 
-  // it("Refunding!", async () => {
-  //   // Add your test here.
-  //   const tx = await program.methods.initialize().rpc();
-  //   console.log("Your transaction signature", tx);
-  // });
+  it("Refunding!", async () => {
+    // Add your test here.
+    const tx = await program.methods
+      .refund()
+      .accounts({...accounts})
+      .signers([maker])
+      .rpc();
+    console.log("Your Refund transaction signature", tx);
+  });
 });

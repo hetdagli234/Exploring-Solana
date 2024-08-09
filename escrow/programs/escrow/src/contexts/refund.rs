@@ -6,7 +6,6 @@ use anchor_spl::{
 use crate::state::Escrow;
 
 #[derive(Accounts)]
-#[instruction(seed: u64)]
 pub struct Refund<'info> {
     #[account(mut)]
     maker: Signer<'info>,
@@ -25,6 +24,8 @@ pub struct Refund<'info> {
     #[account(
         mut,
         close = maker,
+        has_one = mint_a,
+        has_one = maker,
         seeds = [b"escrow", maker.key().as_ref(), escrow.seed.to_le_bytes().as_ref()],
         bump = escrow.bump
     )]
@@ -56,13 +57,13 @@ impl<'info> Refund<'info> {
         let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts, &signer_seeds);
         transfer_checked(ctx, self.vault.amount, self.mint_a.decimals)?;
 
-        let accounts = CloseAccount {
-            account: self.escrow.to_account_info(),
+        let close_accounts = CloseAccount {
+            account: self.vault.to_account_info(),
             destination: self.maker.to_account_info(),
             authority: self.escrow.to_account_info(),
         };
 
-        let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts, &signer_seeds);
+        let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), close_accounts, &signer_seeds);
 
         close_account(ctx)?;
         Ok(())
