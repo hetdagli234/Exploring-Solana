@@ -49,8 +49,8 @@ describe("escrow", () => {
     makerAtaB,
     takerAtaA,
     takerAtaB,
-    escrow,
-    vault,
+    escrow: escrow,
+    vault: vault,
     tokenProgram: TOKEN_PROGRAM_ID
   }
 
@@ -70,7 +70,7 @@ describe("escrow", () => {
   });
 
 
-  xit("Taking!", async () => {
+  it("Taking!", async () => {
     // Add your test here.
     const tx = await program.methods
       .take()
@@ -80,7 +80,7 @@ describe("escrow", () => {
     console.log("Your taker transaction signature", tx);
   });
 
-  it("Refunding!", async () => {
+  xit("Refunding!", async () => {
     // Add your test here.
     const tx = await program.methods
       .refund()
