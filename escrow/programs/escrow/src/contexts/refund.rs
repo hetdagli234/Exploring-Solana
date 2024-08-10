@@ -46,7 +46,7 @@ impl<'info> Refund<'info> {
     pub fn withdraw_and_close(&mut self) -> Result<()> {
         let seed = self.escrow.seed.to_le_bytes();
         let bump = [self.escrow.bump];
-        let signer_seeds = [&[b"escrow", self.maker.to_account_info().key.as_ref(), &seed.as_ref(), &bump][..]];
+        let signer_seeds = [&[b"escrow", self.maker.to_account_info().key.as_ref(), seed.as_ref(), &bump][..]];
         let accounts = TransferChecked {
             to: self.maker_ata_a.to_account_info(),
             from: self.vault.to_account_info(),
