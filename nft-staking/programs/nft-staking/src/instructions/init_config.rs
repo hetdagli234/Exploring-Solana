@@ -22,6 +22,7 @@ pub struct InitializeConfig<'info> {
         bump,
         mint::decimals = 6,
         mint::authority = config,
+        mint::token_program = token_program,
     )]
     pub rewards_mint: Account<'info, Mint>,
     pub system_program: Program<'info, System>,
@@ -37,7 +38,7 @@ impl<'info> InitializeConfig<'info> {
             rewards_bump: bumps.rewards_mint,
             bump: bumps.config,
         });
-        
+
         Ok(())
     }
 }

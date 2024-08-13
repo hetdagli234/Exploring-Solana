@@ -10,5 +10,5 @@ pub struct StakeConfig {
 }
 
 impl Space for StakeConfig {
-    const INIT_SPACE: usize = 8 + 1*4 +4;
+    const INIT_SPACE: usize = 8 + 1*4 + 4;
 }
