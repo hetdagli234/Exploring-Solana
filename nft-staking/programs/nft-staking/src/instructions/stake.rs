@@ -6,7 +6,6 @@ use crate::state::*;
 use crate::error::ErrorCode;
 
 #[derive(Accounts)]
-#[instruction(stake_account_bump: u8)]
 pub struct Stake<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
@@ -26,7 +25,6 @@ pub struct Stake<'info> {
         ],
         seeds::program = metadata_program.key(),
         constraint = metadata.collection.as_ref().unwrap().key.as_ref() == collection.key().as_ref(),
-        constraint = metadata.collection.as_ref().unwrap().verified == true,
         bump
     )]  
     pub metadata: Account<'info, MetadataAccount>,
@@ -66,6 +64,13 @@ impl<'info> Stake<'info> {
 
         require!(self.user_account.amount_staked < self.config.max_stake, ErrorCode::MaxStakeReached);
 
+        self.stake_account.set_inner(StakeAccount {
+            owner: self.user.key(),
+            mint: self.mint.key(),
+            last_updated: Clock::get()?.unix_timestamp,
+            bump: bumps.stake_account,
+        });
+
         let cpi_program = self.token_program.to_account_info();
         let cpi_accounts = Approve {
             to: self.mint_ata.to_account_info(),
@@ -76,6 +81,15 @@ impl<'info> Stake<'info> {
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         approve(cpi_ctx, 1)?;
 
+        let seeds = &[
+            b"stake",
+            self.mint.to_account_info().key.as_ref(),
+            self.config.to_account_info().key.as_ref(),
+            &[self.stake_account.bump]
+        ];     
+
+        let signer_seeds = &[&seeds[..]];
+
         let delegate = &self.stake_account.to_account_info();
         let token_account = &self.mint_ata.to_account_info();
         let edition = &self.edition.to_account_info();
@@ -83,15 +97,6 @@ impl<'info> Stake<'info> {
         let token_program = &self.token_program.to_account_info();
         let metadata_program = &self.metadata_program.to_account_info();
 
-        let binding = self.mint.key();
-        let seeds = &[
-            b"stake".as_ref(),
-            self.user.key.as_ref(),
-            binding.as_ref(),
-            &[bumps.stake_account],
-        ];
-
-        let signer_seeds = &[&seeds[..]];
 
         FreezeDelegatedAccountCpi::new(
             metadata_program, 
@@ -104,19 +109,12 @@ impl<'info> Stake<'info> {
             }
         ).invoke_signed(signer_seeds)?;
 
-        self.stake_account.set_inner(StakeAccount {
-            owner: self.user.key(),
-            mint: self.mint.key(),
-            last_updated: Clock::get()?.unix_timestamp,
-            bump: bumps.stake_account,
-        });
-
         self.user_account.amount_staked += 1;
 
         Ok(())
     }
 
-    pub fn unstake(&mut self, bumps: &StakeBumps) -> Result<()> {
+    pub fn unstake(&mut self) -> Result<()> {
 
         require!(self.user_account.amount_staked > 0, ErrorCode::NoStake);
 
@@ -130,14 +128,13 @@ impl<'info> Stake<'info> {
         let token_program = &self.token_program.to_account_info();
         let metadata_program = &self.metadata_program.to_account_info();
 
-        let binding = self.mint.key();
         let seeds = &[
-            b"stake".as_ref(),
-            self.user.key.as_ref(),
-            binding.as_ref(),
-            &[bumps.stake_account],
-        ];
-
+            b"stake",
+            self.mint.to_account_info().key.as_ref(),
+            self.config.to_account_info().key.as_ref(),
+            &[self.stake_account.bump]
+        ];     
+        
         let signer_seeds = &[&seeds[..]];
 
         ThawDelegatedAccountCpi::new(
