@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::metadata::mpl_token_metadata::instructions::{FreezeDelegatedAccountCpi, FreezeDelegatedAccountCpiAccounts, ThawDelegatedAccountCpi, ThawDelegatedAccountCpiAccounts};
-use anchor_spl::token::{approve, Approve, Mint, Token, TokenAccount};
+use anchor_spl::token::{approve, revoke, Approve, Mint, Revoke, Token, TokenAccount};
 use anchor_spl::metadata::{Metadata, MetadataAccount, MasterEditionAccount};
 use crate::state::*;
 use crate::error::ErrorCode;
@@ -83,6 +83,16 @@ impl<'info> Stake<'info> {
         let token_program = &self.token_program.to_account_info();
         let metadata_program = &self.metadata_program.to_account_info();
 
+        let binding = self.mint.key();
+        let seeds = &[
+            b"stake".as_ref(),
+            self.user.key.as_ref(),
+            binding.as_ref(),
+            &[bumps.stake_account],
+        ];
+
+        let signer_seeds = &[&seeds[..]];
+
         FreezeDelegatedAccountCpi::new(
             metadata_program, 
             FreezeDelegatedAccountCpiAccounts {
@@ -92,7 +102,7 @@ impl<'info> Stake<'info> {
                 mint,
                 token_program,
             }
-        ).invoke()?;
+        ).invoke_signed(signer_seeds)?;
 
         self.stake_account.set_inner(StakeAccount {
             owner: self.user.key(),
@@ -141,17 +151,16 @@ impl<'info> Stake<'info> {
             }
         ).invoke_signed(signer_seeds)?;
 
-        // Tansfer the authority to the user
         let cpi_program = self.token_program.to_account_info();
-        let cpi_accounts = Approve {
-            to: self.mint_ata.to_account_info(),
-            delegate: self.user.to_account_info(),
+
+        let cpi_accounts = Revoke {
+            source: self.mint_ata.to_account_info(),
             authority: self.stake_account.to_account_info(),
         };
 
-
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
-        approve(cpi_ctx, 1)?;
+
+        revoke(cpi_ctx)?;
 
         // Update user account
         self.user_account.amount_staked -= 1;

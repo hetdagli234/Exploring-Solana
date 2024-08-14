@@ -7,7 +7,7 @@ pub mod error;
 
 use instructions::*;
 
-declare_id!("AaSYv2PYCMHzDsDRmxm6Bbe2k8FXnetb5oNnUu48YsvA");
+declare_id!("J7jh3C4HkTjWd71DqMxaZLohLJezDEXkm78A73nYjhRe");
 #[program]
 pub mod nft_staking {
     use super::*;
