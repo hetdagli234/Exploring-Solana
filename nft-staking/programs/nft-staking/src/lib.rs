@@ -2,14 +2,10 @@ use anchor_lang::prelude::*;
 
 
 pub mod state;
-use state::*;
-
 pub mod instructions;
-use instructions::*;
-
 pub mod error;
-use error::*;
 
+use instructions::*;
 
 declare_id!("AaSYv2PYCMHzDsDRmxm6Bbe2k8FXnetb5oNnUu48YsvA");
 #[program]
@@ -30,12 +26,11 @@ pub mod nft_staking {
     }
 
     pub fn unstake(ctx: Context<Stake>) -> Result<()> {
-        ctx.accounts.claim(&ctx.bumps);
         ctx.accounts.unstake(&ctx.bumps)
     }
 
-    pub fn claim(ctx: Context<Stake>) -> Result<()> {
-        ctx.accounts.claim(&ctx.bumps)
+    pub fn claim(ctx: Context<Claim>) -> Result<()> {
+        ctx.accounts.claim()
     }
 
 }

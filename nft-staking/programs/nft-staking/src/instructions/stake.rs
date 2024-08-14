@@ -10,7 +10,6 @@ use crate::error::ErrorCode;
 pub struct Stake<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
-    
     pub mint: Account<'info, Mint>,
     pub collection: Account<'info, Mint>,
     #[account(
@@ -50,7 +49,7 @@ pub struct Stake<'info> {
     )]
     pub user_account: Account<'info, UserAccount>,
     #[account(
-        init,
+        init_if_needed,
         payer = user,
         space = StakeAccount::INIT_SPACE,
         seeds = [b"stake".as_ref(), mint.key().as_ref(), config.key().as_ref()],
@@ -108,12 +107,11 @@ impl<'info> Stake<'info> {
     }
 
     pub fn unstake(&mut self, bumps: &StakeBumps) -> Result<()> {
-        //to unstake we need to thaw the account that was frozen above
-        //need to transfer the nft to the user
-        //need to update the user account subtract 1 from amount_staked
-        //need to close the stake account
-        // Thaw the frozen account
+
         require!(self.user_account.amount_staked > 0, ErrorCode::NoStake);
+
+        let time_elapsed = ((Clock::get()?.unix_timestamp - self.stake_account.last_updated) / 86400) as u32;
+        self.user_account.points += time_elapsed as u32 * self.config.points_per_stake as u32;
 
         let delegate = &self.stake_account.to_account_info();
         let token_account = &self.mint_ata.to_account_info();
@@ -157,14 +155,8 @@ impl<'info> Stake<'info> {
 
         // Update user account
         self.user_account.amount_staked -= 1;
+        self.stake_account.last_updated = 0;
 
-        Ok(())
-    }
-
-    pub fn claim(&mut self, bumps: &StakeBumps) -> Result<()> {
-        //this is for user to claim rewards
-        //Rewards are calculated based on the amount of time that has passed since the last_updated time_stamp, the longer the better
-        //We would be minting new tokens for the reward use MintTo
         Ok(())
     }
 }
