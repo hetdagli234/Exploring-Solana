@@ -16,17 +16,16 @@ pub struct Claim<'info> {
     pub user_account: Account<'info, UserAccount>,
     pub stake_account: Account<'info, StakeAccount>,
     #[account(
-        mint::decimals = 6,
-        mint::authority = config,
-        mint::token_program = token_program,
+        mut,
+        seeds = [b"rewards".as_ref(), config.key().as_ref()], 
+        bump = config.rewards_bump,
     )]
     pub rewards_mint: Account<'info, Mint>,
     #[account(
         init_if_needed,
         payer = user,
         associated_token::mint = rewards_mint,
-        associated_token::authority = config,
-        associated_token::token_program = token_program
+        associated_token::authority = user,
     )]
     pub user_ata: Account<'info, TokenAccount>,
     pub config: Account<'info, StakeConfig>,

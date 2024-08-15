@@ -152,10 +152,10 @@ impl<'info> Stake<'info> {
 
         let cpi_accounts = Revoke {
             source: self.mint_ata.to_account_info(),
-            authority: self.stake_account.to_account_info(),
+            authority: self.user.to_account_info(),
         };
 
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
         revoke(cpi_ctx)?;
 
