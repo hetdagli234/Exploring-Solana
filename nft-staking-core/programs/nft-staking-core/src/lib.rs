@@ -1,10 +1,8 @@
 use anchor_lang::prelude::*;
 pub mod instructions;
 pub mod state;
-pub mod error;
 
 use instructions::*;
-use state::*;
 
 declare_id!("2kTv74CSrRnMdBjXhbq8dXnNFv4bCEuYMhTsjUeq5SvM");
 
@@ -16,14 +14,12 @@ pub mod nft_staking_core {
         ctx.accounts.init_config(seed)
     }
 
-    pub fn stake(ctx: Context<CoreAsset>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn stake(ctx: Context<Stake>) -> Result<()> {
+        ctx.accounts.stake()
     }
 
-    pub fn unstake(ctx: Context<CoreAsset>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn unstake(ctx: Context<Stake>) -> Result<()> {
+        ctx.accounts.unstake()
     }
 }
 

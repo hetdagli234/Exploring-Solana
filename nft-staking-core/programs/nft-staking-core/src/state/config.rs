@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use mpl_core::accounts::BaseAssetV1;
 
 
 //Only one config per collection

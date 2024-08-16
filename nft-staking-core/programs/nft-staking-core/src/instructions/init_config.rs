@@ -1,7 +1,4 @@
-use anchor_lang::{prelude::*, solana_program::stake::state::Stake};
-use anchor_spl::token::{Mint, Token};
-use mpl_core::accounts::{BaseAssetV1, BaseCollectionV1};
-
+use anchor_lang::prelude::*;
 use crate::state::config::StakeConfig;
 
 #[derive(Accounts)]
@@ -11,9 +8,9 @@ pub struct InitializeConfig<'info> {
     pub update_authority: Signer<'info>,
     #[account(
         init_if_needed, 
-        payer = admin, 
+        payer = update_authority, 
         space = 8 + StakeConfig::INIT_SPACE, 
-        seeds = [b"config".as_ref(), update_authority.key().as_ref(), seed.to_le_bytes().as_ref()], 
+        seeds = [b"config".as_ref(), update_authority.key().as_ref()], 
         bump,
     )]
     pub config: Account<'info, StakeConfig>,
