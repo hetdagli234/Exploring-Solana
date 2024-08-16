@@ -3,7 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { NftStakingCore } from "../target/types/nft_staking_core";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults"
 import { createSignerFromKeypair, generateSigner, signerIdentity, publicKey, TransactionBuilder } from "@metaplex-foundation/umi";
-import { MPL_CORE_PROGRAM_ID, mplCore, createV1, createCollectionV1, fetchAsset, updateAuthority } from '@metaplex-foundation/mpl-core'
+import { MPL_CORE_PROGRAM_ID, mplCore, createV1, transfer, transferV1 } from '@metaplex-foundation/mpl-core'
 import { randomBytes } from "crypto";
 import creator from "../dev-wallet.json";
 import stake from "../wba-wallet.json";
@@ -53,7 +53,6 @@ describe("nft-staking-core", () => {
         updateAuthority: publicKey(stakeWallet.publicKey),
       })
     ).sendAndConfirm(umi);
-    console.log("Your transaction signature for asset creation", tx.signature.toString());
   });
 
   it("Initialize config!", async () => {
