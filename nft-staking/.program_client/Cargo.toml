@@ -1,0 +1,10 @@
+[package]
+name = "program_client"
+version = "0.1.0"
+edition = "2018"
+[dependencies.trident-client]
+version = "0.6.0"
+
+[dependencies.nft-staking]
+path = "../programs/nft-staking"
+features = ["no-entrypoint"]
