@@ -1,5 +1,5 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
+import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import { NftStakingCore } from "../target/types/nft_staking_core";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults"
 import { createSignerFromKeypair, generateSigner, signerIdentity, publicKey, TransactionBuilder } from "@metaplex-foundation/umi";
@@ -13,10 +13,12 @@ import { Connection } from "@solana/web3.js";
 
 describe("nft-staking-core", () => {
   // Configure the client to use the local cluster.
-  anchor.setProvider(anchor.AnchorProvider.env());
+  // anchor.setProvider(anchor.AnchorProvider.env());
 
   const creatorWallet = anchor.web3.Keypair.fromSecretKey(new Uint8Array(creator));
   const stakeWallet = anchor.web3.Keypair.fromSecretKey(new Uint8Array(stake));
+  const creatorProvider = new AnchorProvider(new Connection("https://api.devnet.solana.com"), new anchor.Wallet(creatorWallet));
+  const stakeProvider = new AnchorProvider(new Connection("https://api.devnet.solana.com"), new anchor.Wallet(stakeWallet));
 
   const umi = createUmi("https://api.devnet.solana.com");
   let umiKeypair = umi.eddsa.createKeypairFromSecretKey(creatorWallet.secretKey);
@@ -57,6 +59,9 @@ describe("nft-staking-core", () => {
 
   it("Initialize config!", async () => {
 
+    const program = programPaidBy(creatorWallet);
+
+    anchor.setProvider(creatorProvider);
     const seed = new BN(randomBytes(8));
     const tx = await program.methods.initConfig(seed)
     .accountsPartial({
@@ -70,6 +75,7 @@ describe("nft-staking-core", () => {
   });
 
   it("Stake!", async () => {
+    const program = programPaidBy(stakeWallet);
 
     const tx = await program.methods.stake()
     .accountsPartial({
@@ -89,11 +95,10 @@ describe("nft-staking-core", () => {
     let stakeAccount = await program.account.stakeAccount.fetch(userStakeAccount);
 
     assert.equal(stakeAccount.points.toNumber(), 0);
-    console.log(stakeAccount.lastUpdated.toNumber());
   });
 
   it("Unstake!", async () => {
-
+    const program = programPaidBy(stakeWallet);
     const tx = await program.methods.unstake()
     .accountsPartial({
       config: config,
@@ -111,3 +116,10 @@ describe("nft-staking-core", () => {
 
   });
 });
+
+export function programPaidBy(payer: anchor.web3.Keypair): anchor.Program {
+  const newProvider = new AnchorProvider(new Connection("https://api.devnet.solana.com"), new anchor.Wallet(payer));
+  const program = anchor.workspace.NftStakingCore as Program<NftStakingCore>;
+
+  return new anchor.Program(program.idl as anchor.Idl, newProvider)
+}
