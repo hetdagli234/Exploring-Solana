@@ -1,12 +1,12 @@
-# Escrow
+# Vault
 
-A trustless escrow service for secure peer-to-peer transactions on Solana.
+A secure token storage solution implemented on Solana.
 
 ## Features
 
-- Atomic swaps between two parties
-- Time-locked transactions
-- Cancellation and refund mechanisms
+- Secure token deposits and withdrawals
+- Access control and ownership management
+- Interest accrual mechanism (if applicable)
 
 ## Deploying and Testing
 
