@@ -101,8 +101,8 @@ To explore these projects and start your Solana development journey:
 
 I'm always eager to discuss Solana development, blockchain technology, or potential collaborations. Feel free to reach out to me at:
 
-- Email: [your.email@example.com](mailto:daglihet@gmail.com)
-- LinkedIn: [Your LinkedIn Profile](https://www.linkedin.com/in/hetdagli)
-- Twitter: [@YourTwitterHandle](https://twitter.com/daglihet)
+- Email: [daglihet@gmail.com](mailto:daglihet@gmail.com)
+- LinkedIn: [Het Dagli](https://www.linkedin.com/in/hetdagli)
+- Twitter: [@daglihet](https://twitter.com/daglihet)
 
 Thank you for exploring my Solana development journey!
