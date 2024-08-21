@@ -1,6 +1,4 @@
 use anchor_lang::{prelude::*, system_program::{Transfer, transfer}};
-use crate::state::Bet;
-
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]

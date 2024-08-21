@@ -1,5 +1,4 @@
 use anchor_lang::{prelude::*, system_program::{Transfer, transfer}};
-use solana_program::address_lookup_table::instruction;
 
 use crate::state::Bet;
 
@@ -28,7 +27,7 @@ pub struct PlaceBet<'info> {
 }
 
 impl<'info> PlaceBet<'info> {
-    pub fn create_bet(&mut self, bumps: &PlaceBetBumps, seed: u64, amount: u64, roll:u8) -> Result<()> {
+    pub fn create_bet(&mut self, bumps: &PlaceBetBumps, seed: u64, roll:u8, amount: u64) -> Result<()> {
         self.bet.set_inner(Bet {
             player: self.player.key(),
             seed,

@@ -8,7 +8,6 @@ pub use state::*;
 pub use instructions::*;
 
 declare_id!("6NXUR7sgdkzborafBsbWGwtPLGGwhCs3aoAMkcBSrpPZ");
-
 #[program]
 pub mod dice_game {
     use super::*;
@@ -17,7 +16,7 @@ pub mod dice_game {
         ctx.accounts.init(amount)
     }
 
-    pub fn place_bet(ctx: Context<PlaceBet>, seed: u128, roll: u8, amount: u64) -> Result<()> {
+    pub fn place_bet(ctx: Context<PlaceBet>, seed: u64, roll: u8, amount: u64) -> Result<()> {
         ctx.accounts.create_bet(&ctx.bumps, seed, roll, amount)?;
         ctx.accounts.deposit(amount)
     }
