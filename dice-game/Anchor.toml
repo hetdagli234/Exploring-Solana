@@ -2,16 +2,16 @@
 
 [features]
 resolution = true
-skip-lint = false
+skip-lint = true
 
-[programs.localnet]
+[programs.devnet]
 dice_game = "6NXUR7sgdkzborafBsbWGwtPLGGwhCs3aoAMkcBSrpPZ"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
