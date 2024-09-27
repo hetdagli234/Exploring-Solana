@@ -11,6 +11,7 @@ Welcome to my Solana development portfolio! This repository showcases my journey
    - [Automated Market Maker (AMM)](#automated-market-maker-amm)
    - [NFT Staking](#nft-staking)
    - [NFT Staking Core](#nft-staking-core)
+   - [Clean and Claim](#clean-and-claim)
 3. [Getting Started](#getting-started)
 4. [Contact](#contact)
 
@@ -75,6 +76,35 @@ Key features:
 
 [View NFT Staking Core Project](./nft-staking-core)
 
+### Clean and Claim
+
+My capstone project, addressing community fundraising in a novel way.
+
+#### Problem
+How to raise funds from the community without ripping them off?
+
+#### Solution
+Take the rent SOL from users' empty token accounts in exchange for your own token. The frontend should be a blink. Users get to clear their empty accounts in exchange for your tokens, creating a mutually beneficial deal.
+
+#### Key Features
+- Users can clean up their empty token accounts
+- In return, users receive project tokens
+- Simple and quick user experience
+- Fundraising mechanism for projects
+
+#### Limitations
+- Limited by the number of empty token accounts (only 0.002 SOL per account)
+- Need to clear 10,000 accounts to raise approximately $3,000
+- No fair distribution mechanism (can be gamed)
+- Primary goal is fundraising, not fair token distribution
+
+#### Program Details
+The Clean and Claim program is implemented using Anchor framework. It allows users to close their empty token accounts and claim project tokens in return. The program includes functionality for initialization, replenishing the reward pool, and the main clean-and-claim operation.
+
+**Devnet Program ID:** `C5tBGFF2h8s2432GyS5xG5Qf5QWo7KJmfmUT9R8a51bu`
+
+[View Clean and Claim Project](./clean-and-claim)
+
 ## Getting Started
 
 To explore these projects and start your Solana development journey:
@@ -84,7 +114,7 @@ To explore these projects and start your Solana development journey:
 3. Navigate to each project folder
 4. Run `anchor build` to compile the programs
 5. Run `anchor deploy` to deploy the programs on devnet
-5. Run `anchor test` to execute the test suites
+6. Run `anchor test` to execute the test suites
 
 ### Resources for Learning Solana Development
 
